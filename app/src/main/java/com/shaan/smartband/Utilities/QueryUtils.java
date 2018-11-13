@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.shaan.smartband.Models.HealthData;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -126,7 +127,19 @@ class QueryUtils {
             // Create a JSONObject from the JSON response string
             JSONObject baseJsonResponse = new JSONObject(healthJson);
             // put JSON data into the objects
-
+            JSONArray feeds = baseJsonResponse.getJSONArray("feeds");
+            for (int i = 0; i < feeds.length(); i++) {
+                JSONObject feed = feeds.getJSONObject(i);
+                HealthData healthData = new HealthData(
+                        feed.getString("created_at"),
+                        feed.getString("entry_id"),
+                        feed.getString("field1"),
+                        feed.getString("field2"),
+                        feed.getString("field3"),
+                        feed.getString("field4")
+                );
+                healthDataList.add(healthData);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e("QueryUtils", "Problem parsing the news JSON results", e);

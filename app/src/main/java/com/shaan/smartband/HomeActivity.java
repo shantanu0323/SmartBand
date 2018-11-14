@@ -2,6 +2,7 @@ package com.shaan.smartband;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
@@ -17,6 +18,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
@@ -37,8 +39,8 @@ public class HomeActivity extends AppCompatActivity implements LoaderManager.Loa
     private static final int LOADER_ID = 1;
     private static final String REQUEST_URL = "https://api.thingspeak.com/channels/312725/feeds.json";
     private boolean alreadyLoaded = false;
-    private PieChart chartBodyTemp;
-    private Button bRefresh;
+    private BarChart chartBodyTemp;
+    private Button bRefresh, bPrevRecords;
     private TextView tvBodyTemp, tvAtmosTemp, tvPulseRate, tvHeatIndex, tvLastUpdated;
     private ProgressDialog progressDialog;
 
@@ -49,6 +51,7 @@ public class HomeActivity extends AppCompatActivity implements LoaderManager.Loa
 
         findViews();
         initiateLoader();
+
         bRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -56,29 +59,24 @@ public class HomeActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
+        bPrevRecords.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), PreviousRecords.class));
+            }
+        });
 //        drawBodyTempChart();
     }
 
-    private void drawBodyTempChart() {
-        List<PieEntry> entries = new ArrayList<>();
-
-        entries.add(new PieEntry(800, "Green"));
-        entries.add(new PieEntry(3200, ""));
-
-        PieDataSet set = new PieDataSet(entries, "Election Results");
-        PieData data = new PieData(set);
-        chartBodyTemp.setData(data);
-        chartBodyTemp.invalidate(); // refresh
-    }
 
     private void findViews() {
-//        chartBodyTemp = findViewById(R.id.chartBodyTemp);
         tvBodyTemp = findViewById(R.id.tvBodyTemp);
         tvAtmosTemp = findViewById(R.id.tvAtmosTemp);
         tvPulseRate = findViewById(R.id.tvPulseRate);
         tvHeatIndex = findViewById(R.id.tvHeatIndex);
         tvLastUpdated = findViewById(R.id.tvLastUpdated);
         bRefresh = findViewById(R.id.bRefresh);
+        bPrevRecords = findViewById(R.id.bPrevRecords);
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Hold On !!!");
         progressDialog.setMessage("Just a sec while I fetch the details...");
@@ -123,7 +121,7 @@ public class HomeActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     public void onLoadFinished(@NonNull Loader<List<HealthData>> loader, List<HealthData> healthDataList) {
         progressDialog.dismiss();
-        Snackbar.make(findViewById(R.id.bRefresh), "Data Updated Successfully", Snackbar.LENGTH_LONG).show();
+        Snackbar.make(findViewById(R.id.bRefresh), "Data Updated Successfully", Snackbar.LENGTH_SHORT).show();
         String message = "";
         for (HealthData healthData :
                 healthDataList) {
